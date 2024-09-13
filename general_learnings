@@ -1,0 +1,199 @@
+Learnings
+
+Learn 
+Calling a method at time of loading without using static block  https://medium.com/@cancerian0684/run-method-on-application-startup-in-spring-boot-37aa5e82c948
+
+
+@EventListener(ContextRefreshedEvent.class)
+"http://tibcop.dc.ht.hr:6104/productCatalog/v3/categories","url":"http://tibcop.dc.ht.hr:6104/productCatalog/v3/categories?
+
+
+**Note : assume that we have a weather API that provides an HTTP GET endpoint to fetch data, which in-turn uses a downstream API (forecast API), let's say the weather API's response time is 200 ms (milliseconds), so with simple calculation this API could serve 5 requests per second, however, if it uses RestTemplate default implementation then maximum no. of HTTP connections per host (in this case for forecast API) is defaulted to 2 connections. So, even though API is capable of serving 5 requests per second due to a max no. of 2 HTTP connections, remaining 3 requests have to wait until a response is received from downstream API (assuming here forecast API response time is 200 ms as well). This creates a bottleneck and performance issue. In Spring Framework, the RestTemplate class utilizes an underlying HttpClient implementation for handling HTTP requests. By default, RestTemplate uses the SimpleClientHttpRequestFactory, which creates a new HttpURLConnection (based on the JDK's own HTTP libraries) for each request. This factory does not have built-in connection pooling. However, the RestTemplate class can be configured to use HttpComponentsClientHttpRequestFactory, which is based on Apache HttpClient and provides connection pooling capabilities.
+
+For full blog visit : https://dev.to/akdevcraft/never-use-spring-resttemplate-default-implementation-2ghj#:~:text=In%20Spring%20Framework%2C%20the%20RestTemplate,HTTP%20libraries)%20for%20each%20request
+
+
+1. 
+RestTemplate works internally by using an HTTP client to make HTTP requests. RestTemplate provides a higher-level abstraction over the HTTP client, making it easier to make HTTP requests and handle responses.
+Here is a simplified overview of how RestTemplate works internally:
+1. RestTemplate creates an HTTP request object based on the specified HTTP method and URI.
+2. RestTemplate sets the request headers and body, if necessary.
+3. RestTemplate executes the HTTP request using the configured HTTP client.
+4. RestTemplate parses the HTTP response and returns the response body to the caller.
+RestTemplate also provides a number of features that make it easier to use, such as:
+* Support for different HTTP methods, including GET, POST, PUT, DELETE, and HEAD.
+* Support for different content types, such as JSON, XML, and plain text.
+* Support for caching HTTP responses.
+* Support for handling errors gracefully.
+
+Q) HOW TO CONFIGURE A REDIS DB IN YOUR APPLICATION:
+
+@Configuration
+public class RedisConfiguration {
+
+    @Bean
+    public RedisTemplate<String, Object> redisTemplate(RedisConnectionFactory connectionFactory) {
+        RedisTemplate<String, Object> redisTemplate = new RedisTemplate<>();
+        redisTemplate.setConnectionFactory(connectionFactory);
+        redisTemplate.setDefaultSerializer(new StringRedisSerializer());
+        return redisTemplate;
+    }
+}
+
+
+3.
+
+WHEN DO WE USE ATOMIC INTEGER ?
+
+AtomicInteger is a class in Java that is part of the java.util.concurrent.atomic package. It is used for atomic operations on integers, meaning operations that are performed as a single, indivisible unit. The primary use case for AtomicInteger is in scenarios where you need to perform operations on an integer variable in a multi-threaded environment, and you want to ensure that these operations are thread-safe.
+
+Traditional i++ is not thread safe, bit atomicInteger ensures safety, no need for explicit ‘synchronized’ block.
+
+1. Difference b/w async and multithread ?
+
+
+
+1. Creating your own custom validation for http request:
+
+We can do it by creating custom annotation using @interface 
+Ex-
+
+@Constraint(validatedBy=MyCustomValidator.class)
+@Retention(RetentionPolicy.RUNTIME)
+@Target({FIELD,TYPE})
+public @interface MyCustomAnnotation {
+    String message() default "Invalid value";
+    Class<?>[] groups() default {};
+    Class<? extends Payload>[] payload() default {};
+}
+
+We can use @MyCustomAnnotation on any field (Like we use @Email validator) to validate that field. But the logic of this custom annotation is defined by the @Constrain(validatedBy=MyCustomValidator.class) 
+It implements the ConstraintValidator which has two method that we need to implement.
+Ex-
+
+public class MyCustomValidator implements ConstraintValidator<MyCustomConstraint, String> {
+
+    @Override
+    public void initialize(MyCustomConstraint constraintAnnotation) {
+        // Initialization logic, if needed
+    }
+
+    @Override
+    public boolean isValid(String value, ConstraintValidatorContext context) {
+        // Your custom validation logic goes here
+        // Return true if the value is valid, false otherwise
+        return value != null && value.startsWith("custom-prefix");
+    }
+}
+
+
+The lifecycle of a constraint validator is managed by the Bean Validation framework (such as Hibernate Validator). The initialize method is called during the initialization of the validator instance, which typically occurs when the framework initializes and processes annotations.
+During the application context loading, the validation-related beans and configurations may be initialized, but the actual validation of fields or objects against constraints happens at runtime, when triggered by specific events (e.g., form submission, API request processing).
+
+
+
+Let’s break it down further:
+
+* @Target({ElementType.FIELD, ElementType.PARAMETER}): This annotation specifies where the custom constraint can be applied. In this case, it can be applied to fields and parameters.
+* @Retention(RetentionPolicy.RUNTIME): This annotation indicates that the custom constraint annotation should be retained at runtime, allowing it to be accessed and processed by reflection.
+* @Constraint(validatedBy = MyCustomValidator.class): This part specifies the validator class (MyCustomValidator.class) that will perform the actual validation logic. The validatedBy attribute is used to link the custom constraint annotation (MyCustomAnnotation) with the corresponding validator (MyCustomValidator). In other words, when an object is annotated with @MyCustomAnnotation, Spring will use MyCustomValidator to perform the validation.
+The MyCustomValidator class implements the ConstraintValidator<MyCustomConstraint, String> interface, where MyCustomConstraint is the custom annotation, and String is the type of the field being validated. The initialize method is used for any initialization logic, and the isValid method contains the actual validation logic.
+
+
+1. Why are immutable objects ThreadSafe ?
+
+1. Socket Connection:
+Sockets are the objects that helps as bridge  btw software server which talks to the OS to send and receive data.
+Sockets are abstracted out and used under the hood of servlet. The socket is binded to a particular port and that’s how the OS knows where to send the data(request).
+Spring RestTemplate traditionally used the SimpleClientHttpRequestFactory as the default implementation, which relies on Java's HttpURLConnection for making HTTP requests. HttpURLConnection handles the underlying network communication, including socket management.
+
+
+1. HOW TO INTEGRATE ELK STACK IN A SB APPLICATION ?
+
+https://salithachathuranga94.medium.com/integrate-elk-stack-into-spring-boot-application-ae38a6371f86
+
+1. WHY MDC LOGS CAME INTO BEING ?
+ANS : TO MAINTAIN LOGS UNIQUELY FOR EACH REQUEST IN THE SERVER 
+ Watch : https://www.youtube.com/watch?v=CQpH4NNx8P0&ab_channel=GainJavaKnowledge
+
+
+1. What is docker compose. How to setup ELK application in docker.
+2. What is liquibase. How do you implement it ?
+3. 
+
+
+
+
+ In Java 8 method referencing we can call static methods directly by using 
+
+map(ClassName :: myStaticMethod) e.g map(System.out :: println)
+
+But how can we call an instance method the same way when it is not even static for e.g the getter method in some employee class map(Employee :: getName) this happens because in the Function interface the apply(T t) takes an input but if no inout is given then the method is considered as a static method only like getName() is a getter method and does not take any argument so during method referencing it is considered as a static method and not an instance method.
+
+2. Just like method referencing we can also use  constructor referencing by using Employee::new
+
+3. @Repository and @Transactional need not be put on the interface extending JPARepository coz they are already present in it’s implementation class SimpleJPARepository
+
+- [ ] Paging and sorting : JPARepository -> PagingAndSortingRepository ->CrudRepository
+
+PagingAndSorting has two methods 
+1.  Iterable<T> findAll(Sort sort)
+2. Page<T> findAll(Pageable pageable)
+
+9.
+ In Basic Authorization of spring security we can use a configuration class to setup the Security Configuration
+ In that class we can create bean that returns UserDetailsService (for in memory authentication), another bean for PasswordEncoder(which returns an object for BCryptPasswordEncoder which is use to encode the password stored in UserDetailsService and the Third bean for SecurityFilterChain which actually permits what user can actually access which request).
+
+
+10. @EnableMethodSecurity is an annotation in Spring Security used to enable method-level security in your application. It allows you to secure individual methods in your application by applying security annotations like @PreAuthorize, @PostAuthorize, @Secured, and @RolesAllowed directly to methods. This provides fine-grained control over access to specific methods based on the security context, like user roles or permissions.
+Ex: 
+@PreAuthorize("hasRole('ADMIN')") 
+public void adminMethod() { 
+ System.out.println("Admin-only method."); 
+}
+
+To enable this kind of method security, you would annotate your security configuration class( The configuration class) with @EnableMethodSecurity:
+
+@PreAuthorize: Checks authorization before a method is invoked.
+* Example: @PreAuthorize("hasRole('ADMIN')")
+@PostAuthorize: Checks authorization after the method execution, useful for filtering returned data.
+* Example: @PostAuthorize("returnObject.owner == authentication.name")
+@Secured: Restricts access based on roles. It’s a simpler alternative to @PreAuthorize.
+* Example: @Secured("ROLE_ADMIN")
+@RolesAllowed: A JSR-250 annotation that is similar to @Secured, allowing access to specific roles.
+
+
+11. We use a generic error response DTO for global exception handler so that when any exception comes it should have the same format like having message and http status wrapped in a ResponseEntity<>() object.
+
+12.  @manyToMany mapping in JPA
+
+@ManyToMany: Defines the many-to-many relationship between Student and Course.
+* mappedBy (always used in the dependent entity)= "courses": Indicates that the students field in the Course entity is the inverse side of the relationship, and the ownership of the relationship is handled by the Student entity.
+@JoinTable: Specifies the join table that links the two entities in the database.
+* name = "student_course": The name of the join table.
+* joinColumns:(the owner entity) Specifies the foreign key column (student_id) in the join table that refers to the Student entity.(the owner entity)
+* inverseJoinColumns:(the child entity class) Specifies the foreign key column (course_id) that refers to the Course entity.
+
+Eg: @JoinTable( name = "student_course",  joinColumns = @JoinColumn(name = "student_id"), 
+									   inverseJoinColumns = @JoinColumn(name = "course_id"))
+
+ 
+13.    it is absolutely possible to inject an interface into a class as a dependency. This is a core feature of Dependency Injection (DI) in Spring. When you inject an interface, Spring will provide an implementation of that interface at runtime, based on the configured beans. We can use @qualifier or @Primary to resolve conflict at runtime.
+
+
+@Service
+public class OrderService {
+
+    private final PaymentService paymentService;
+
+    @Autowired
+    public OrderService(PaymentService paymentService) {  // No @Qualifier or @Primary
+        this.paymentService = paymentService;
+    }
+
+    public void completeOrder(double amount) {
+        paymentService.processPayment(amount);
+    }
+}
+
+
